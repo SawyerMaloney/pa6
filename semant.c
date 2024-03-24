@@ -78,10 +78,10 @@ SEM_ExpType SEM_trans_exp(S_Table venv, S_Table tenv, A_Exp exp) {
             SEM_ExpType left = SEM_trans_exp(venv, tenv, exp->u.op.left); // get the type on either side
             SEM_ExpType right = SEM_trans_exp(venv, tenv, exp->u.op.right); 
             // TODO add other operators (whoops)
-            if (oper == A_PLUS_OP) { // error checking here
-                if ((void *)(left->type->kind) != make_T_Int())
+            if (oper == A_PLUS_OP || oper == A_MINUS_OP || A_TIMES_OP || A_DIVIDE_OP) { // error checking here
+                if (left->type->kind != T_INT)
                     EM_error(exp->u.op.left->pos, "integer required");
-                if ((void *)(right->type->kind) != make_T_Int())
+                if (right->type->kind != T_INT)
                     EM_error(exp->u.op.right->pos, "integer required");
                 return make_ExpType(NULL, make_T_Int()); // pretty sure this is the right function? prof. changed the names from the book
             }

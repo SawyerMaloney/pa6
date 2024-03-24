@@ -41,6 +41,7 @@
 1. Check canvas for fixing declarations in function and stuff
 2. In CALL_EXP, need to check typing of all the arguments (does this entail calling trans_exp on them?)
 3. Something about name types and chasing down types?
+4. We need to implement the case switch for all operations btw
 
 #### Mutually recursive function calls and types
 - Do a first pass, putting recursive functions in the table with a 'hole'
