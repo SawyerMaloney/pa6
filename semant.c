@@ -208,10 +208,19 @@ void SEM_trans_dec(S_Table venv, S_Table tenv, A_Dec dec) {
         case A_TYPE_DEC_GROUP: {
             // iterate through all the type decs, translating the A_Type to T_Type and assigning their values into tenv
             // do we have to check if a type is already defined? or can we just redefine the type over it?
-            A_TypeDec typedec = dec->u.type->head;
-            while (typedec != NULL) {
-                // maybe check that the type isn't defined already
-                S_enter(tenv, typedec->name, SEM_trans_type(tenv, typedec->type));
+            if (dec->u.type->head->type->kind == A_RECORD_TYPE) {
+                A_TypeDecList first_pass = dec->u.type;
+                while (first_pass) {
+                    A_TypeDec head = first_pass->head;
+                    
+                }
+            }
+            else {
+                A_TypeDec typedec = dec->u.type->head;
+                while (typedec != NULL) {
+                    // maybe check that the type isn't defined already
+                    S_enter(tenv, typedec->name, SEM_trans_type(tenv, typedec->type));
+                }
             }
         }
         case A_FUNCTION_DEC_GROUP: {
@@ -251,8 +260,10 @@ void SEM_trans_dec(S_Table venv, S_Table tenv, A_Dec dec) {
                 // now enter function into venv with the updated type
                 // by doing it again, will it shadow over the previous declaration?
                 // looking up the previous one for the formals declaration...
-                E_EnvEntry fun_entry = S_look(venv, second_pass->name);
-                S_enter(venv, second_pass->head->name, fun_entry->u.formals); 
+                E_EnvEntry fun_entry = S_look(venv, second_pass->head->name);
+                E_EnvEntry new_fun_entry = make_E_FunEntry(fun_entry->u.fun.formals, return_type->type);
+                S_enter(venv, second_pass->head->name, new_fun_entry); 
+                second_pass = second_pass->tail;
             }
         }
     }
@@ -261,10 +272,8 @@ void SEM_trans_dec(S_Table venv, S_Table tenv, A_Dec dec) {
 T_Type SEM_actual_type(S_Table tenv, T_Type type) {
     // chasing down type
     while (type->kind == T_NAME) {
-        else {
             // look up the type in the name type decl, and iterate on it
-            type = (T_Type)S_look(tenv, type->name.type);
-        }
+            type = (T_Type)S_look(tenv, type->u.name.sym);
     }
     return type;
 }
