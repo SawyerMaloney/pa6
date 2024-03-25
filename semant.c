@@ -1,5 +1,5 @@
 /*
- * PA5; Sawyer Maloney and Jack Edwards
+ * PA6; Sawyer Maloney and Jack Edwards
  * */
 
 #include <stdlib.h>
@@ -193,7 +193,6 @@ SEM_ExpType SEM_trans_exp(S_Table venv, S_Table tenv, A_Exp exp) {
     return NULL;
 }
 
-// NOTE: when are we supposed to use SEM_trans_type? That is, are we always supposed to be putting T_Type into the tables?
 
 void SEM_trans_dec(S_Table venv, S_Table tenv, A_Dec dec) {
     switch(dec->kind) {
@@ -216,39 +215,58 @@ void SEM_trans_dec(S_Table venv, S_Table tenv, A_Dec dec) {
             }
         }
         case A_FUNCTION_DEC_GROUP: {
-            // FunDecList { FunDec Head; FunDecList tail; }
-            // FunDec { pos; symbol name; FieldList params; Sym result; Exp body; }
-            // E_EnvEntry u { TypeList formals ; T_Type result; }
-            // make_E_FunEntry(T_TypeList formals, T_Type result }
-            A_FunDec head = dec->u.function->head;
-            while (head != NULL) {
-                // iterating through all the function declarations
-                T_TypeList previous = NULL;
-                // iterate through the types in formal
-                A_FieldList params = head->params;
-                while (params != NULL) {
-                    T_Type param_type = S_look(tenv, params->head->type);
-                    // make new typelist, with param_type as head, and set previous equal
-                    T_TypeList typelist = malloc_checked(sizeof(*typelist));
-                    typelist->head = param_type;
-                    typelist->tail = previous;
-                    previous = previous;
+            // TODO enter into new S_Table frame
+            // first pass, putting function declarations in the venv
+            A_FunDecList first_pass = dec->u.function;
+            while (first_pass) {
+                // enter each function declaration into the venv 
+                // Given A_FieldList params --> T_TypeList formals
+                T_Type return_type = S_look(tenv, first_pass->head->result);
+                A_FieldList params = first_pass->head->params;
+                T_TypeList formals = make_T_TypeList(NULL, NULL);
+                while (params) {
+                    // insert param into venv so the function knows it exists
+                    T_Type params_type = S_look(tenv, params->head->type);
+                    S_enter(venv, params->head->name, params_type);
+                    formals = make_T_TypeList(params_type, formals);
                     params = params->tail;
                 }
-                // previous is the complete typelist
-                T_Type result_type = S_look(tenv, head->result);
-                if (result_type == NULL) {
-                    EM_error(head->pos, "Bad function return type\n");
+                S_enter(venv, first_pass->head->name, make_E_FunEntry(formals, return_type));
+            } 
+            // second pass -- evaluate all the bodies 
+            A_FunDecList second_pass = dec->u.function;
+            while (second_pass) {
+                // enter params into scope and then execute bodies 
+                S_begin_scope(tenv);
+                S_begin_scope(venv);
+                A_FieldList params = second_pass->head->params;
+                while (params) {
+                     T_Type params_type = S_look(tenv, params->head->type);
+                     S_enter(venv, params->head->name, params_type);
+                     params = params->tail;
                 }
-                SEM_ExpType body_type = SEM_trans_exp(venv, tenv, head->body);
-                if (result_type->kind != body_type->type->kind) {
-                    EM_error(head->pos, "mismatched function return type and function body type\n");
-                }
-                E_EnvEntry fun_entry = make_E_FunEntry(previous, result_type);
-                S_enter(venv, head->name, fun_entry);
-            }            
+                SEM_ExpType return_type = SEM_trans_exp(tenv, venv, second_pass->head->body);
+                S_end_scope(tenv);
+                S_end_scope(venv);
+                // now enter function into venv with the updated type
+                // by doing it again, will it shadow over the previous declaration?
+                // looking up the previous one for the formals declaration...
+                E_EnvEntry fun_entry = S_look(venv, second_pass->name);
+                S_enter(venv, second_pass->head->name, fun_entry->u.formals); 
+            }
         }
     }
+}
+
+T_Type SEM_actual_type(S_Table tenv, T_Type type) {
+    // chasing down type
+    while (type->kind == T_NAME) {
+        else {
+            // look up the type in the name type decl, and iterate on it
+            type = (T_Type)S_look(tenv, type->name.type);
+        }
+    }
+    return type;
 }
 
 T_Type SEM_trans_type(S_Table tenv, A_Type type) {
