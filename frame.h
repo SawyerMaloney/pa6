@@ -28,4 +28,4 @@ struct F_Var_ {
 
 void F_add_param(F_Frame frame, F_Var param);
 void F_add_var(F_Frame frame, F_Var var);
-void print_frame(F_Frame frame);
+void F_print_frame(F_Frame frame);

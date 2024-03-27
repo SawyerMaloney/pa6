@@ -366,6 +366,10 @@ SEM_ExpType SEM_trans_prog(A_Exp prog) {
     S_Table venv = E_base_venv();
     S_Table tenv = E_base_tenv();
     TR_Function main = malloc_checked(sizeof(*main));
+    F_Frame frame = malloc_checked(sizeof(*frame));
+    S_Symbol name = make_S_Symbol("main");
+    main->name = name;
+    main->frame = frame;
 
     return SEM_trans_exp(venv, tenv, main, prog);
 }

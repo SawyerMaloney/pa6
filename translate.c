@@ -1,5 +1,7 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include "translate.h"
+
 
 void TR_append_function(TR_Function parent, TR_Function child) {
     if (parent->children == NULL) {
@@ -34,10 +36,10 @@ void TR_add_var(TR_Function func, S_Symbol name, T_Type type) {
 
 void TR_print_functions(TR_Function func) {
     if (func->parent == NULL) {
-        printf("Function %s\n", func->name);
+        printf("Function %s\n", S_name(func->name));
     }
     else {
-        printf("Function %s with parent %s", func->name, func->parent->name);
+        printf("Function %s with parent %s", S_name(func->name), S_name(func->parent->name));
     }
     F_print_frame(func->frame);
     for (TR_FunctionList fl = func->children; fl ; fl = fl->tail) {

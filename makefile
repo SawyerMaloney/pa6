@@ -1,7 +1,7 @@
 CC = gcc
 FLAGS = -Wall -Werror -std=c99 -D_XOPEN_SOURCE=700 -g
 
-parse: parse.o prabsyn.o semant.o env.o types.o absyn.o symbol.o table.o y.tab.o lex.yy.o errormsg.o util.o
+parse: parse.o prabsyn.o semant.o env.o types.o absyn.o symbol.o table.o y.tab.o lex.yy.o errormsg.o util.o frame.o translate.o
 	$(CC) $(FLAGS) $^ -o $@
 
 TARGET = parse
@@ -12,15 +12,16 @@ TARGET = prabsyn
 ${TARGET}.o: ${TARGET}.c ${TARGET}.h
 	$(CC) $(FLAGS) -c $<
 
+
+TARGET = semant
+${TARGET}.o: ${TARGET}.c ${TARGET}.h
+	$(CC) $(FLAGS) -c $<
+
 TARGET = frame
 ${TARGET}.o: ${TARGET}.c ${TARGET}.h
 	$(CC) $(FLAGS) -c $<
 
 TARGET = translate
-${TARGET}.o: ${TARGET}.c ${TARGET}.h
-	$(CC) $(FLAGS) -c $<
-
-TARGET = semant
 ${TARGET}.o: ${TARGET}.c ${TARGET}.h
 	$(CC) $(FLAGS) -c $<
 
