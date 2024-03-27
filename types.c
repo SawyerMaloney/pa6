@@ -98,3 +98,27 @@ void T_print_type_list(T_TypeList list) {
     }
 }
 
+int T_size(T_Type type) {
+    if (type->kind == T_INT) {
+        return T_INT_SIZE;
+    }
+    else if (type->kind == T_NIL) {
+        return T_NIL_SIZE;
+    }
+    else if (type->kind == T_NAME) {
+        return T_size(type->u.name.type);
+    }
+    else if (type->kind == T_STRING) {
+        return T_POINTER_SIZE;
+    }
+    else if (type->kind == T_RECORD) {
+        return T_POINTER_SIZE;
+    }
+    else if (type->kind == T_ARRAY) {
+        return T_POINTER_SIZE;
+    }
+    else if (type->kind == T_VOID) {
+        return T_NIL_SIZE; // should this be int?
+    }
+    return T_NIL_SIZE;
+}

@@ -62,3 +62,30 @@
             - All you need for type checking because you have all the types of all the bodies of all the functoins
             - Just matching that the arguments match the types of what was passed in, and the body expression matches the output
         - Type check the body because it may have a call to some function in the same group
+
+#### 3_26 In-class notes
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

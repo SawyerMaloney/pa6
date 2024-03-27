@@ -211,7 +211,7 @@ void SEM_trans_dec(S_Table venv, S_Table tenv, A_Dec dec) {
             if (dec->u.type->head->type->kind == A_RECORD_TYPE) {
                 A_TypeDecList first_pass = dec->u.type;
                 while (first_pass) {
-                    A_TypeDec head = first_pass->head;
+                    // A_TypeDec head = first_pass->head;
                     
                 }
             }

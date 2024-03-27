@@ -8,6 +8,10 @@
 
 #include "symbol.h"
 
+#define T_INT_SIZE 4
+#define T_POINTER_SIZE 8
+#define T_NIL_SIZE 0
+
 typedef struct T_Type_ * T_Type;
 typedef struct T_TypeList_ * T_TypeList;
 typedef struct T_Field_ * T_Field;
@@ -50,3 +54,6 @@ T_Field make_T_Field(S_Symbol name, T_Type type);
 T_FieldList make_T_FieldList(T_Field head, T_FieldList tail);
 void T_print_type(T_Type t);
 void T_print_type_list(T_TypeList list);
+
+// sawyer added
+int T_size(T_Type type);

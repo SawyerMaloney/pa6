@@ -5,7 +5,7 @@ typedef struct E_EnvEntry_ * E_EnvEntry;
 struct E_EnvEntry_ {
     enum { E_VAR_ENTRY, E_FUN_ENTRY } kind;
     union {
-        struct { T_Type type; } var;
+        struct { T_Type type; int nesting_level; int offset;} var;
         struct { T_TypeList formals; T_Type result; } fun;
     } u;
 };
