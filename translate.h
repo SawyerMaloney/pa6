@@ -6,17 +6,15 @@
 #include "util.h"
 #include "frame.h"
 
-typedef struct TR_VarList_ * TR_VarList;
 typedef struct TR_FunctionList_ * TR_FunctionList;
-typedef struct TR_Var_ * TR_Var;
-typedef struct TR_Function_ * TR_Function
+typedef struct TR_Function_ * TR_Function;
 
 
 struct TR_Function_ {
     S_Symbol name;
     F_Frame frame;
     TR_Function parent;
-    TR_FunctionList children
+    TR_FunctionList children;
 };
 
 struct TR_FunctionList_ {

@@ -6,8 +6,10 @@
 #include "util.h"
 
 typedef struct F_Frame_ * F_Frame;
+typedef struct F_Var_ * F_Var;
+typedef struct F_VarList_ * F_VarList;
 
-struct F_Frame {
+struct F_Frame_ {
     int nesting_level;
     int end;
     F_VarList params;
