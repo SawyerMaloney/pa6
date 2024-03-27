@@ -12,6 +12,14 @@ TARGET = prabsyn
 ${TARGET}.o: ${TARGET}.c ${TARGET}.h
 	$(CC) $(FLAGS) -c $<
 
+TARGET = frame
+${TARGET}.o: ${TARGET}.c ${TARGET}.h
+	$(CC) $(FLAGS) -c $<
+
+TARGET = translate
+${TARGET}.o: ${TARGET}.c ${TARGET}.h
+	$(CC) $(FLAGS) -c $<
+
 TARGET = semant
 ${TARGET}.o: ${TARGET}.c ${TARGET}.h
 	$(CC) $(FLAGS) -c $<
