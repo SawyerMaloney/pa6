@@ -12,11 +12,23 @@ void F_add_param(F_Frame frame, F_Var param) {
 }
 
 void F_add_var(F_Frame frame, F_Var var) {
+    // prof code
+    if (!frame->vars) {
+        frame->vars = make_F_VarList(var, NULL);
+    }
+    else {
+        F_VarList vars = frame->vars;
+        while (vars->tail) {
+            vars = vars->tail;
+        }
+        vars->tail = make_F_VarList(var, NULL);
+    }
+    // end
     F_VarList p = malloc_checked(sizeof(*p));
     p->head = var;
     p->tail = frame->vars;
     frame->vars = p;
-    frame->end += T_size(var->type);
+    frame->end += T_size(var->type); // this is what he has too
 }
 
 void F_print_frame(F_Frame frame) {

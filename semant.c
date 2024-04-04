@@ -70,8 +70,13 @@ SEM_ExpType SEM_trans_exp(S_Table venv, S_Table tenv, TR_Function func, A_Exp ex
             for (d = exp->u.let.decs; d; d=d->tail)
                 SEM_trans_dec(venv, tenv, func, d->head); // iterate through the type declarations, adding each one (have to do this in transDec)
             expty = SEM_trans_exp(venv, tenv, func, exp->u.let.body); // now we evaluate the body
+            if (!expty) {
+                EM_error(exp->pos, "cannot establish type of in-clause");
+                return make_SEM_ExpType(func, make_T_Void());
+            }
             S_end_scope(tenv); // close the scopes, we're now out of the let expression entirely, outside "END"
             S_end_scope(venv);
+            expty->exp = func;
             return expty;
         }
         case A_OP_EXP: { // another book example
@@ -232,6 +237,40 @@ void SEM_trans_dec(S_Table venv, S_Table tenv, TR_Function func, A_Dec dec) {
             }
         }
         case A_FUNCTION_DEC_GROUP: {
+            // prof code
+            for (A_FunDecList fdl = dec->u.function; fdl; fdl = fdl->tail) {
+                A_FunDec fd = fdl->head;
+                T_Type result_type;
+                if (fd->result) {
+                    result_type = S_look(tenv, fd->result);
+                }
+                else {
+                    result_type = make_T_Void();
+                }
+                T_TypeList formal_types = SEM_make_formal_type_list(tenv, fd->params) // need
+                S_enter(venv, fd->name, make_E_FunEntry(formal_types, result_type));
+            }
+            for (A_FunDecList fdl = dec->u.function; fdl; fdl = fdl->tail) {
+                A_FunDec fd = fdl->head;
+                TR_Function new_function = make_TR_Function(fd->name, make_F_Frame(func->frame->nesting_level + 1));
+                TR_append_function(func, new_function);
+                E_EnvEntry function_entry = S_look(venv, fd->name);
+                S_begin_scope(venv);
+                A_FieldList fields;
+                T_TypeList formals;
+                for (fields = fd->params, formals = function_entry->u.fun.formals; fields; fields = fields->tail, formals = formals->tail) {
+                    TR_add_param(new_function, fields->head->name, formals->head);
+                    S_enter(venv, fields->head->name, make_E_VarEntry(formals->head, func->frame->nesting_level, func->frame->end));
+                }
+                SEM_ExpType body_exp_type = SEM_trans_exp(venv, tenv, new_function, fd->body);
+                S_end_scope(venv);
+                if (!SEM_types_agree(function_entry->u.fun.result, body_exp_type->type)) {
+                    EM_error("types do not agree");
+                }
+            }
+
+            // end
+
             // TODO enter into new S_Table frame
             // first pass, putting function declarations in the venv
             A_FunDecList first_pass = dec->u.function;
@@ -365,7 +404,9 @@ T_Type SEM_trans_type(S_Table tenv, A_Type type) {
 SEM_ExpType SEM_trans_prog(A_Exp prog) {
     S_Table venv = E_base_venv();
     S_Table tenv = E_base_tenv();
+    // should use make_TR_Function with make_S_Symbol("main"), main_frame (main_frame from make_F_Frame)
     TR_Function main = malloc_checked(sizeof(*main));
+    // should use make_F_frame
     F_Frame frame = malloc_checked(sizeof(*frame));
     S_Symbol name = make_S_Symbol("main");
     main->name = name;

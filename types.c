@@ -105,9 +105,6 @@ int T_size(T_Type type) {
     else if (type->kind == T_NIL) {
         return T_NIL_SIZE;
     }
-    else if (type->kind == T_NAME) {
-        return T_size(type->u.name.type);
-    }
     else if (type->kind == T_STRING) {
         return T_POINTER_SIZE;
     }
